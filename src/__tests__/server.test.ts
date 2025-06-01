@@ -1,5 +1,5 @@
-import { QuickBooksDesktopMCPServer } from '../server.js';
-import { tools } from '../tools/index.js';
+import { QuickBooksDesktopMCPServer } from '../server';
+import { tools } from '../tools/index';
 
 describe('QuickBooksDesktopMCPServer', () => {
   let server: QuickBooksDesktopMCPServer;

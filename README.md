@@ -1,203 +1,347 @@
-# QuickBooks Desktop MCP Server Analysis and Implementation Guide
+# QuickBooks Desktop MCP Server
 
-Based on the provided Conductor API specification, creating an MCP server for QuickBooks Desktop is absolutely feasible and would be highly valuable for integrating QuickBooks functionality with Claude. The Conductor API provides comprehensive access to QuickBooks Desktop operations through a modern REST API.
+A comprehensive Model Context Protocol (MCP) server that provides Claude with direct access to QuickBooks Desktop operations through the Conductor API. This server enables natural language interactions with QuickBooks for financial management, bill processing, payment handling, and comprehensive reporting.
 
-## Feasibility Assessment
+## 🚀 Features
 
-The Conductor API offers robust capabilities including:
-- **Authentication Management**: Bearer token authentication with end-user session handling
-- **Financial Data Access**: Comprehensive CRUD operations for accounts, bills, payments
-- **Transaction Management**: Bill payments via check and credit card processing
-- **Flexible Querying**: Rich filtering and pagination capabilities
-- **Passthrough Functionality**: Direct API access for advanced use cases
+### Core Capabilities
+- **End-User Management**: Create and manage QuickBooks end-users
+- **Authentication Flow**: Handle QuickBooks Desktop authentication sessions
+- **Account Management**: Full CRUD operations for chart of accounts
+- **Bill Processing**: Create, update, and manage vendor bills with line items
+- **Payment Processing**: Handle check and credit card payments for bills
+- **Financial Reporting**: Generate summaries and analyze vendor spending patterns
+- **Advanced Operations**: Direct API access and bulk operations
 
-## Core MCP Server Architecture
+### Technical Features
+- **Multi-Tenant Support**: Handle multiple QuickBooks companies
+- **Robust Caching**: Local caching system to optimize slow Conductor API calls
+- **Comprehensive Error Handling**: Retry logic and detailed error messages
+- **Input Validation**: Zod-based schema validation for all operations
+- **Financial Formatting**: Proper currency display and amount handling
+- **Pagination Support**: Cursor-based navigation for large datasets
 
-The MCP server should expose QuickBooks operations as tools that Claude can invoke, handling authentication, data formatting, and error management transparently. The server will need to manage both API authentication and end-user context switching for multi-tenant scenarios.
+## 📋 Prerequisites
 
-## Implementation Prompt for Devin.io
+- Node.js 18+ and npm
+- QuickBooks Desktop with Conductor integration
+- Conductor API credentials (secret key, publishable key)
 
----
+## 🛠️ Installation
 
-**Project: QuickBooks Desktop MCP Server**
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/alfork/qbconductor-mcp-server.git
+   cd qbconductor-mcp-server
+   ```
 
-Create a comprehensive MCP (Model Context Protocol) server that interfaces with QuickBooks Desktop via the Conductor API. Reference this existing ClickUp MCP server for architectural patterns: https://github.com/taazkareem/clickup-mcp-server
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-**Requirements:**
+3. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit `.env` with your Conductor API credentials:
+   ```env
+   CONDUCTOR_SECRET_KEY=your_secret_key_here
+   CONDUCTOR_PUBLISHABLE_KEY=your_publishable_key_here
+   CONDUCTOR_END_USER_ID=your_default_end_user_id
+   CONDUCTOR_BASE_URL=https://api.conductor.is/v1
+   LOG_LEVEL=info
+   CACHE_TTL_MINUTES=30
+   CACHE_MAX_SIZE=1000
+   ```
 
-**1. Project Setup**
-- Use TypeScript/Node.js with the MCP SDK
-- Implement proper error handling and logging
-- Create configuration management for API keys and settings
-- Set up comprehensive testing framework
+4. **Build the project**
+   ```bash
+   npm run build
+   ```
 
-**2. Authentication & Configuration**
-- Implement Bearer token authentication for Conductor API
-- Support multiple end-users with `Conductor-End-User-Id` header management
-- Create configuration system for:
-  - API base URL (https://api.conductor.is/v1)
-  - Secret API key
-  - Publishable key
-  - Default end-user ID
+## 🔧 Configuration
 
-**3. Core MCP Tools to Implement**
+### Environment Variables
 
-**End-User Management:**
-- `create_end_user`: Create new QuickBooks end-users
-- `list_end_users`: List all end-users
-- `get_end_user`: Retrieve specific end-user details
-- `delete_end_user`: Remove end-users
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `CONDUCTOR_SECRET_KEY` | Conductor API secret key | Yes | - |
+| `CONDUCTOR_PUBLISHABLE_KEY` | Conductor API publishable key | Yes | - |
+| `CONDUCTOR_END_USER_ID` | Default end-user ID for operations | No | - |
+| `CONDUCTOR_BASE_URL` | Conductor API base URL | No | `https://api.conductor.is/v1` |
+| `LOG_LEVEL` | Logging level (debug, info, warn, error) | No | `info` |
+| `CACHE_TTL_MINUTES` | Cache time-to-live in minutes | No | `30` |
+| `CACHE_MAX_SIZE` | Maximum number of cached items | No | `1000` |
 
-**Authentication Flow:**
-- `create_auth_session`: Generate QuickBooks authentication URLs
-- `check_connection_status`: Verify end-user connection status
+### MCP Client Configuration
 
-**Account Management:**
-- `list_accounts`: Get chart of accounts with filtering options
-- `create_account`: Create new financial accounts
-- `get_account`: Retrieve account details
-- `update_account`: Modify existing accounts
+Add this server to your MCP client configuration:
 
-**Bill Management:**
-- `list_bills`: Retrieve bills with comprehensive filtering (vendor, date ranges, payment status)
-- `create_bill`: Create new vendor bills with line items
-- `get_bill`: Retrieve specific bill details
-- `update_bill`: Modify existing bills
+```json
+{
+  "mcpServers": {
+    "qbconductor": {
+      "command": "node",
+      "args": ["/path/to/qbconductor-mcp-server/dist/index.js"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "your_secret_key",
+        "CONDUCTOR_PUBLISHABLE_KEY": "your_publishable_key",
+        "CONDUCTOR_END_USER_ID": "your_end_user_id"
+      }
+    }
+  }
+}
+```
 
-**Payment Processing:**
-- `list_bill_check_payments`: Get check payments for bills
-- `create_bill_check_payment`: Process bill payments via check
-- `list_bill_credit_card_payments`: Get credit card payments
-- `create_bill_credit_card_payment`: Process credit card bill payments
-- `update_payment`: Modify existing payments
-- `delete_payment`: Remove payments
+## 🎯 Available Tools
 
-**Reporting & Analysis:**
-- `get_account_tax_lines`: Retrieve tax line information
-- `generate_financial_summary`: Aggregate financial data across accounts
-- `get_vendor_spending_analysis`: Analyze spending by vendor
+### End-User Management
+- `create_end_user` - Create new QuickBooks end-users
+- `list_end_users` - List all end-users
+- `get_end_user` - Retrieve specific end-user details
+- `delete_end_user` - Remove end-users
 
-**Advanced Operations:**
-- `passthrough_request`: Direct API calls for custom operations
-- `bulk_operations`: Batch processing for multiple transactions
+### Authentication
+- `create_auth_session` - Generate QuickBooks authentication URLs
+- `check_connection_status` - Verify end-user connection status
 
-**4. Implementation Details**
+### Account Management
+- `list_accounts` - Get chart of accounts with filtering
+- `get_account` - Retrieve account details
+- `create_account` - Create new financial accounts
+- `update_account` - Modify existing accounts
 
-**Tool Parameters:**
-- Use proper typing with required/optional parameters
-- Implement comprehensive input validation
-- Support QuickBooks filtering patterns (date ranges, name matching, status filters)
-- Handle pagination with cursor-based navigation
+### Bill Management
+- `list_bills` - Retrieve bills with comprehensive filtering
+- `get_bill` - Retrieve specific bill details
+- `create_bill` - Create new vendor bills with line items
+- `update_bill` - Modify existing bills
 
-**Response Formatting:**
-- Structure responses for Claude's consumption
-- Include relevant metadata (IDs, revision numbers, timestamps)
-- Provide clear error messages with actionable guidance
-- Format financial amounts consistently
+### Payment Processing
+- `list_bill_check_payments` - Get check payments for bills
+- `list_bill_credit_card_payments` - Get credit card payments
+- `create_bill_check_payment` - Process bill payments via check
+- `create_bill_credit_card_payment` - Process credit card bill payments
+- `update_payment` - Modify existing payments
+- `delete_payment` - Remove payments
 
-**Error Handling:**
-- Implement retry logic for transient API failures
-- Handle QuickBooks-specific errors (revision conflicts, validation errors)
-- Provide clear error messages to Claude
-- Log errors for debugging
+### Reporting & Analysis
+- `get_account_tax_lines` - Retrieve tax line information
+- `generate_financial_summary` - Aggregate financial data across accounts
+- `get_vendor_spending_analysis` - Analyze spending by vendor
 
-**5. Key Features**
+### Advanced Operations
+- `passthrough_request` - Direct API calls for custom operations
+- `bulk_operations` - Batch processing for multiple transactions
 
-**Multi-Tenant Support:**
-- Allow Claude to specify end-user context
-- Default to configured end-user if not specified
-- Validate end-user access before operations
+## 💡 Usage Examples
 
-**Data Relationships:**
-- Handle linked transactions appropriately
-- Support transaction line linking
-- Manage account hierarchies
+### Basic Account Operations
+```
+Claude: "Show me all expense accounts in QuickBooks"
+→ Uses: list_accounts with accountType filter
 
-**QuickBooks Constraints:**
-- Respect QuickBooks revision number requirements for updates
-- Handle currency and exchange rate considerations
-- Support custom fields and classes
+Claude: "Create a new expense account called 'Marketing Software'"
+→ Uses: create_account with proper account details
+```
 
-**6. Testing Strategy**
-- Unit tests for all tool implementations
-- Integration tests with Conductor API sandbox
-- Mock QuickBooks scenarios for edge cases
-- Test multi-user contexts and authentication flows
+### Bill Management
+```
+Claude: "Show me all unpaid bills from this month"
+→ Uses: list_bills with date range and payment status filters
 
-**7. Documentation**
-- Comprehensive README with setup instructions
-- Tool documentation with examples
-- Authentication setup guide
-- Troubleshooting section
+Claude: "Create a bill for $500 from Office Depot for office supplies"
+→ Uses: create_bill with vendor and line item details
+```
 
-**8. Security Considerations**
-- Secure API key management
-- Input sanitization and validation
-- Rate limiting awareness
-- Audit logging for financial operations
+### Payment Processing
+```
+Claude: "Pay the Office Depot bill via check from our main checking account"
+→ Uses: create_bill_check_payment with account and bill references
 
-**Technical Implementation Notes:**
-- Follow the MCP protocol specification exactly
-- Use the Conductor API's revision number system for safe updates
-- Implement proper cursor-based pagination for large datasets
-- Handle QuickBooks' specific date/time formatting requirements
-- Support both filtered queries and direct ID-based lookups
+Claude: "Show me all payments made to vendors this quarter"
+→ Uses: list_bill_check_payments and list_bill_credit_card_payments
+```
 
-**Deliverables:**
-1. Complete MCP server implementation
-2. Configuration documentation
-3. Testing suite with coverage reports
-4. Usage examples and integration guide
-5. Deployment instructions
+### Financial Analysis
+```
+Claude: "Generate a financial summary for all expense accounts"
+→ Uses: generate_financial_summary with account type filtering
 
-The server should enable Claude to perform complex QuickBooks operations like "Show me all unpaid bills from this month" or "Create a new bill for Office Supplies vendor and pay it via check from our main checking account."
+Claude: "Analyze our spending by vendor for the last 6 months"
+→ Uses: get_vendor_spending_analysis with date range
+```
 
----
+## 🏗️ Architecture
 
-This implementation would create a powerful bridge between Claude and QuickBooks Desktop, enabling sophisticated financial management conversations and automation through natural language interactions[1].
+### Project Structure
+```
+src/
+├── config.ts                 # Configuration management
+├── logger.ts                 # Logging setup
+├── index.ts                  # Server entry point
+├── server.ts                 # MCP server implementation
+├── services/
+│   ├── conductor-client.ts   # Conductor API client
+│   └── cache-service.ts      # Local caching service
+├── schemas/
+│   ├── conductor-types.ts    # Conductor API type definitions
+│   └── mcp-schemas.ts        # MCP input validation schemas
+├── utils/
+│   ├── validation.ts         # Input validation utilities
+│   ├── formatting.ts         # Response formatting utilities
+│   └── error-handling.ts     # Error handling utilities
+└── tools/
+    ├── index.ts              # Tool registry
+    ├── end-users.ts          # End-user management tools
+    ├── auth.ts               # Authentication tools
+    ├── accounts.ts           # Account management tools
+    ├── bills.ts              # Bill management tools
+    ├── payments.ts           # Payment processing tools
+    ├── reporting.ts          # Reporting and analysis tools
+    └── advanced.ts           # Advanced operation tools
+```
 
-Citations:
-[1] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/40297107/7837bbde-34c9-4acf-a723-0b55423af731/conductor
-[2] https://github.com/taazkareem/clickup-mcp-server
-[3] https://modelcontextprotocol.io/introduction
-[4] https://milvus.io/ai-quick-reference/what-are-the-system-requirements-for-deploying-model-context-protocol-mcp-servers
-[5] https://www.descope.com/learn/post/mcp
-[6] https://code.visualstudio.com/docs/copilot/chat/mcp-servers
-[7] https://quarkus.io/blog/mcp-server/
-[8] https://developers.hubspot.com/mcp
-[9] https://cdn.cdata.com/help/RNK/mcp/default.htm
-[10] https://docs.openwebui.com/openapi-servers/mcp/
-[11] https://github.com/harsha-iiiv/openapi-mcp-generator
-[12] https://github.com/higress-group/openapi-to-mcpserver
-[13] https://spec.openapis.org/oas/v3.1.1.html
-[14] https://www.anthropic.com/news/model-context-protocol
-[15] https://modelcontextprotocol.io/quickstart/server
-[16] https://github.com/nihal1294/openapi-to-mcp
-[17] https://github.com/modelcontextprotocol
-[18] https://github.com/alejandro-ao/mcp-server-example
-[19] https://www.orum.io/blog/automating-mcp-servers
-[20] https://en.wikipedia.org/wiki/Model_Context_Protocol
-[21] https://modelcontextprotocol.io/specification/2025-03-26
-[22] https://www.youtube.com/watch?v=7j_NE6Pjv-E
-[23] https://www.philschmid.de/mcp-introduction
-[24] https://diamantai.substack.com/p/model-context-protocol-mcp-explained
-[25] https://modelcontextprotocol.io/examples
-[26] https://github.com/modelcontextprotocol/servers
-[27] https://www.kdnuggets.com/10-awesome-mcp-servers
-[28] https://www.speakeasy.com/docs/model-context-protocol
-[29] https://app.stainless.com/docs/guides/generate-an-mcp-server
-[30] https://swagger.io/specification/
-[31] https://conductor-oss.github.io/conductor/documentation/api/index.html
-[32] https://www.reddit.com/r/mcp/comments/1ks94ka/turn_any_openapi_spec_into_an_mcp_server_a_new/
-[33] https://xata.io/blog/built-xata-mcp-server
-[34] https://www.youtube.com/watch?v=TMbyv_RGEAk
-[35] https://stackoverflow.com/questions/64828587/openapi-vs-jsonapi
-[36] https://github.com/spec-first/connexion/issues/2029
-[37] https://document360.com/blog/open-api/
-[38] https://openliberty.io/docs/latest/reference/feature/openapi-3.1.html
-[39] https://apidog.com/blog/openapi-specification/
-[40] https://learn.microsoft.com/en-us/power-platform-release-plan/2022wave1/power-platform-pro-development/openapi-3-support-custom-connectors
-[41] https://docs.workato.com/connectors/openapi/
+### Key Components
 
----
-Answer from Perplexity: pplx.ai/share
+#### Conductor Client
+- Direct REST API integration with Conductor
+- Automatic retry logic for transient failures
+- Comprehensive error handling and logging
+- Built-in caching for performance optimization
+
+#### Cache Service
+- Local caching to reduce API calls
+- Configurable TTL and size limits
+- Pattern-based cache invalidation
+- Performance monitoring and statistics
+
+#### Input Validation
+- Zod-based schema validation for all tools
+- Type-safe parameter handling
+- Comprehensive error messages for invalid inputs
+
+#### Response Formatting
+- Consistent response structure across all tools
+- Financial amount formatting with currency display
+- Metadata inclusion (timestamps, IDs, revision numbers)
+- List formatting with summaries and pagination info
+
+## 🔒 Security
+
+- **API Key Management**: Secure environment variable handling
+- **Input Sanitization**: Comprehensive validation of all inputs
+- **Error Handling**: No sensitive data exposure in error messages
+- **Multi-Tenant Isolation**: Proper end-user context management
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+npm test
+```
+
+Build and verify:
+```bash
+npm run build
+npm run lint
+```
+
+## 📚 API Reference
+
+### Tool Input Schemas
+
+All tools accept parameters according to their defined schemas. Common parameters include:
+
+- `endUserId` (optional): Override default end-user for multi-tenant scenarios
+- Date filters: Use `YYYY-MM-DD` format for date ranges
+- Pagination: Cursor-based navigation for large result sets
+- Filtering: Support for various QuickBooks filtering patterns
+
+### Response Format
+
+All tools return responses in this format:
+```json
+{
+  "success": true,
+  "data": { /* tool-specific data */ },
+  "metadata": {
+    "endUserId": "user_123",
+    "timestamp": "2024-01-01T00:00:00Z",
+    "totalCount": 10,
+    /* additional metadata */
+  }
+}
+```
+
+Error responses:
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Human-readable error message",
+    "code": "ERROR_CODE",
+    "details": { /* additional error context */ }
+  }
+}
+```
+
+## 🚀 Deployment
+
+### Local Development
+```bash
+npm run dev
+```
+
+### Production Build
+```bash
+npm run build
+npm start
+```
+
+### Docker Deployment
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY dist/ ./dist/
+CMD ["node", "dist/index.js"]
+```
+
+## 📖 Documentation
+
+- [Setup Guide](SETUP.md) - Detailed installation and configuration instructions
+- [Contributing Guide](CONTRIBUTING.md) - Guidelines for contributors
+- [API Reference](API.md) - Comprehensive API documentation
+- [Examples](EXAMPLES.md) - Usage examples and integration patterns
+- [Troubleshooting](TROUBLESHOOTING.md) - Common issues and solutions
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+For support and questions:
+- Create an issue in this repository
+- Review the [Conductor API documentation](https://docs.conductor.is/api-ref/welcome)
+- Check the [MCP specification](https://modelcontextprotocol.io/introduction)
+
+## 🔗 Related Projects
+
+- [Conductor API Documentation](https://docs.conductor.is/api-ref/welcome)
+- [Model Context Protocol](https://modelcontextprotocol.io/introduction)
+- [ClickUp MCP Server](https://github.com/taazkareem/clickup-mcp-server) (Reference implementation)

@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing to the QuickBooks Desktop MCP Server! This document provides guidelines and information for contributors.
 
+> **📦 Public Repository**: This is a public repository that can be freely cloned, forked, and contributed to without authentication. No private information is stored in the codebase.
+
 ## 🤝 How to Contribute
 
 ### Types of Contributions

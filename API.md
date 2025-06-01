@@ -2,6 +2,8 @@
 
 This document provides comprehensive API reference documentation for all tools available in the QuickBooks Desktop MCP Server.
 
+> **📦 Public Repository**: This is a public repository that can be freely cloned and used without authentication. No private information is stored in the codebase.
+
 ## Table of Contents
 
 - [Overview](#overview)

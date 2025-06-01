@@ -2,6 +2,8 @@
 
 This guide provides detailed instructions for setting up and configuring the QuickBooks Desktop MCP Server with the Conductor API.
 
+> **📦 Public Repository**: This is a public repository that can be freely cloned and used without authentication. No private information is stored in the codebase.
+
 ## 📋 Prerequisites
 
 ### System Requirements
@@ -103,7 +105,7 @@ For local development, custom deployment, or other MCP clients:
 
 #### 1. Clone and Install
 ```bash
-# Clone the repository
+# Clone the repository (No authentication required - public repository)
 git clone https://github.com/alfork/qbconductor-mcp-server.git
 cd qbconductor-mcp-server
 

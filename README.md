@@ -2,6 +2,8 @@
 
 A comprehensive Model Context Protocol (MCP) server that provides Claude with direct access to QuickBooks Desktop operations through the Conductor API. This server enables natural language interactions with QuickBooks for financial management, bill processing, payment handling, and comprehensive reporting.
 
+> **📦 Public Repository**: This is a public repository that can be freely cloned, forked, and used without authentication. No private information is stored in the codebase.
+
 ## 🚀 Features
 
 ### Core Capabilities
@@ -61,7 +63,7 @@ The easiest way to use this server is through Claude Desktop with NPM package in
 
 For local development or custom deployment:
 
-1. **Clone the repository**
+1. **Clone the repository** (No authentication required - public repository)
    ```bash
    git clone https://github.com/alfork/qbconductor-mcp-server.git
    cd qbconductor-mcp-server
@@ -417,7 +419,9 @@ CMD ["node", "dist/index.js"]
 
 ## 🤝 Contributing
 
-1. Fork the repository
+This is a **public repository** - contributions are welcome!
+
+1. Fork the repository (no authentication required)
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
 3. Commit your changes: `git commit -m 'Add amazing feature'`
 4. Push to the branch: `git push origin feature/amazing-feature`

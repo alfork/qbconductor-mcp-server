@@ -39,14 +39,51 @@ npm run build
 npm run test:connection
 ```
 
-### Environment Verification
+### Configuration Verification
+
+#### Claude Desktop Configuration (Recommended)
+
+For Claude Desktop integration, verify your configuration file:
+
+```bash
+# Check Claude Desktop config file location
+# macOS:
+cat ~/Library/Application\ Support/Claude/claude_desktop_config.json | jq .mcpServers.QuickBooks
+
+# Windows:
+type %APPDATA%\Claude\claude_desktop_config.json | jq .mcpServers.QuickBooks
+
+# Linux:
+cat ~/.config/Claude/claude_desktop_config.json | jq .mcpServers.QuickBooks
+```
+
+Expected configuration format:
+```json
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
+        "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_default_user"
+      }
+    }
+  }
+}
+```
+
+#### Alternative: Environment Variables
+
+For local development, verify environment variables:
 
 ```bash
 # Check required environment variables
 echo "Secret Key: ${CONDUCTOR_SECRET_KEY:0:10}..."
-echo "Publishable Key: ${CONDUCTOR_PUBLISHABLE_KEY:0:10}..."
+echo "API Key: ${CONDUCTOR_API_KEY:0:10}..."
 echo "End User ID: ${CONDUCTOR_END_USER_ID}"
-echo "Base URL: ${CONDUCTOR_BASE_URL}"
+echo "Base URL: ${CONDUCTOR_API_BASE_URL}"
 ```
 
 ### Log Analysis
@@ -159,10 +196,86 @@ npm install --save-dev typescript@latest
 
 ## Configuration Problems
 
-### Issue: Missing Environment Variables
+### Issue: Claude Desktop Configuration Problems
 
 **Symptoms:**
-- Authentication failures
+- Tools not appearing in Claude Desktop
+- Authentication failures in Claude
+- "Configuration not found" errors
+- Server startup failures
+
+**Common Configuration Issues:**
+
+1. **Missing Environment Variables in Claude Config:**
+```json
+// ❌ Incorrect - missing required env variables
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"]
+    }
+  }
+}
+
+// ✅ Correct - with required env variables
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
+        "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_default_user"
+      }
+    }
+  }
+}
+```
+
+2. **Invalid JSON Syntax:**
+```bash
+# Validate Claude config JSON syntax
+cat ~/.config/Claude/claude_desktop_config.json | jq .
+```
+
+3. **Wrong File Location:**
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+**Solutions:**
+
+1. **Fix Claude Desktop Configuration:**
+```bash
+# 1. Locate Claude config file
+# macOS:
+open ~/Library/Application\ Support/Claude/
+
+# Windows:
+explorer %APPDATA%\Claude\
+
+# Linux:
+xdg-open ~/.config/Claude/
+
+# 2. Edit claude_desktop_config.json with proper format
+# 3. Restart Claude Desktop
+```
+
+2. **Verify Configuration:**
+```bash
+# Test JSON syntax
+jq . ~/.config/Claude/claude_desktop_config.json
+
+# Check for required fields
+jq '.mcpServers.QuickBooks.env | keys' ~/.config/Claude/claude_desktop_config.json
+```
+
+### Issue: Missing Environment Variables (Local Development)
+
+**Symptoms:**
+- Authentication failures in local development
 - "Configuration not found" errors
 - Server startup failures
 
@@ -227,6 +340,53 @@ curl -H "Authorization: Bearer $CONDUCTOR_SECRET_KEY" \
    - Create new API keys in Conductor dashboard
    - Update environment variables
    - Restart the server
+
+### Issue: API Key Configuration Problems
+
+**Symptoms:**
+- Authentication failures
+- "Invalid API key" errors
+- 401 Unauthorized responses
+
+**Common Issues:**
+
+1. **Wrong API Key Format:**
+```json
+// ❌ Incorrect - wrong key format
+{
+  "env": {
+    "CONDUCTOR_SECRET_KEY": "your_secret_key",
+    "CONDUCTOR_API_KEY": "your_api_key"
+  }
+}
+
+// ✅ Correct - proper key format
+{
+  "env": {
+    "CONDUCTOR_SECRET_KEY": "sk_prod_abc123...",
+    "CONDUCTOR_API_KEY": "pk_prod_xyz789..."
+  }
+}
+```
+
+2. **Mixed Test/Production Keys:**
+- Ensure both keys are from the same environment (test or production)
+- `sk_test_...` should be paired with `pk_test_...`
+- `sk_prod_...` should be paired with `pk_prod_...`
+
+**Solutions:**
+
+1. **Verify Key Format:**
+```bash
+# Check key prefixes in Claude config
+jq '.mcpServers.QuickBooks.env | to_entries[] | select(.key | contains("KEY")) | .value[0:10]' ~/.config/Claude/claude_desktop_config.json
+```
+
+2. **Regenerate Keys:**
+- Log into Conductor dashboard
+- Generate new API key pair
+- Update Claude Desktop configuration
+- Restart Claude Desktop
 
 ### Issue: End-User Configuration Problems
 
@@ -608,26 +768,36 @@ try {
 
 ## MCP Client Integration Issues
 
-### Issue: Claude Desktop Configuration Problems
+### Issue: Claude Desktop Integration Problems
 
 **Symptoms:**
-- Tools not appearing in Claude
-- Connection failures
-- Configuration errors
+- Tools not appearing in Claude Desktop
+- Connection failures between Claude and MCP server
+- Configuration errors in Claude Desktop
 
 **Common Configuration Issues:**
+
+1. **NPM Package Configuration (Recommended):**
 ```json
-// ❌ Incorrect - missing environment variables
+// ✅ Recommended - NPM package with Claude config JSON
 {
   "mcpServers": {
-    "qbconductor": {
-      "command": "node",
-      "args": ["/path/to/qbconductor-mcp-server/dist/index.js"]
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
+        "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_default_user"
+      }
     }
   }
 }
+```
 
-// ✅ Correct - with environment variables
+2. **Local Development Configuration:**
+```json
+// ✅ Alternative - Local development setup
 {
   "mcpServers": {
     "qbconductor": {
@@ -635,8 +805,35 @@ try {
       "args": ["/absolute/path/to/qbconductor-mcp-server/dist/index.js"],
       "env": {
         "CONDUCTOR_SECRET_KEY": "sk_your_secret_key",
-        "CONDUCTOR_PUBLISHABLE_KEY": "pk_your_publishable_key",
-        "CONDUCTOR_END_USER_ID": "user_your_end_user_id"
+        "CONDUCTOR_API_KEY": "pk_your_publishable_key",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_end_user_id"
+      }
+    }
+  }
+}
+```
+
+3. **Common Mistakes:**
+```json
+// ❌ Missing environment variables
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"]
+    }
+  }
+}
+
+// ❌ Wrong key names
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET": "sk_prod_...",  // Should be CONDUCTOR_SECRET_KEY
+        "CONDUCTOR_KEY": "pk_prod_..."      // Should be CONDUCTOR_API_KEY
       }
     }
   }
@@ -644,18 +841,38 @@ try {
 ```
 
 **Solutions:**
+
 1. **Verify Configuration File Location:**
-   - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-   - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
-   - Linux: `~/.config/Claude/claude_desktop_config.json`
+   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+   - **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
 2. **Test Configuration:**
 ```bash
 # Validate JSON syntax
 cat ~/.config/Claude/claude_desktop_config.json | jq .
 
-# Test server startup
-node /path/to/qbconductor-mcp-server/dist/index.js --test
+# Check MCP server configuration
+jq '.mcpServers.QuickBooks' ~/.config/Claude/claude_desktop_config.json
+
+# Verify environment variables are present
+jq '.mcpServers.QuickBooks.env | keys' ~/.config/Claude/claude_desktop_config.json
+```
+
+3. **Debug Claude Desktop Connection:**
+```bash
+# Test NPM package installation
+npx @alfork/qbconductor-mcp-server@latest --help
+
+# Check Claude Desktop logs (if available)
+# macOS:
+tail -f ~/Library/Logs/Claude/claude.log
+
+# Windows:
+type %LOCALAPPDATA%\Claude\logs\claude.log
+
+# Linux:
+tail -f ~/.local/share/Claude/logs/claude.log
 ```
 
 ### Issue: MCP Protocol Errors

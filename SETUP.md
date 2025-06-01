@@ -37,7 +37,71 @@ This guide provides detailed instructions for setting up and configuring the Qui
 
 ## 🛠️ Installation Steps
 
-### 1. Clone and Install
+### Option 1: Claude Desktop Integration (Recommended)
+
+The easiest way to set up this server is through Claude Desktop with automatic NPM package installation:
+
+#### 1. Locate Claude Desktop Configuration File
+
+Find your Claude Desktop configuration file:
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+#### 2. Add Server Configuration
+
+Open the configuration file and add the QuickBooks MCP server:
+
+```json
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_your_secret_key_here",
+        "CONDUCTOR_API_KEY": "pk_your_publishable_key_here",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_end_user_id_here"
+      }
+    }
+  }
+}
+```
+
+#### 3. Optional Configuration
+
+You can customize the server behavior by adding optional environment variables:
+
+```json
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_your_secret_key_here",
+        "CONDUCTOR_API_KEY": "pk_your_publishable_key_here",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_end_user_id_here",
+        "CONDUCTOR_API_BASE_URL": "https://api.conductor.is/v1",
+        "LOG_LEVEL": "info",
+        "CACHE_TTL_MINUTES": "30",
+        "CACHE_MAX_SIZE": "1000",
+        "DISABLED_TOOLS": "passthrough_request,bulk_operations"
+      }
+    }
+  }
+}
+```
+
+#### 4. Restart Claude Desktop
+
+Save the configuration file and restart Claude Desktop. The server will be automatically installed and configured when Claude Desktop starts.
+
+### Option 2: Local Development Setup
+
+For local development, custom deployment, or other MCP clients:
+
+#### 1. Clone and Install
 ```bash
 # Clone the repository
 git clone https://github.com/alfork/qbconductor-mcp-server.git
@@ -50,7 +114,7 @@ npm install
 npm run build
 ```
 
-### 2. Environment Configuration
+#### 2. Environment Configuration
 ```bash
 # Copy environment template
 cp .env.example .env
@@ -59,19 +123,19 @@ cp .env.example .env
 nano .env  # or your preferred editor
 ```
 
-### 3. Configure Environment Variables
+#### 3. Configure Environment Variables
 Edit your `.env` file with the following values:
 
 ```env
 # Required: Conductor API Credentials
 CONDUCTOR_SECRET_KEY=sk_your_secret_key_here
-CONDUCTOR_PUBLISHABLE_KEY=pk_your_publishable_key_here
+CONDUCTOR_API_KEY=pk_your_publishable_key_here
 
 # Optional: Default end-user (recommended)
-CONDUCTOR_END_USER_ID=user_your_end_user_id_here
+CONDUCTOR_END_USER_ID=end_usr_your_end_user_id_here
 
 # Optional: API Configuration
-CONDUCTOR_BASE_URL=https://api.conductor.is/v1
+CONDUCTOR_API_BASE_URL=https://api.conductor.is/v1
 
 # Optional: Logging and Performance
 LOG_LEVEL=info
@@ -79,7 +143,7 @@ CACHE_TTL_MINUTES=30
 CACHE_MAX_SIZE=1000
 ```
 
-### 4. Verify Configuration
+#### 4. Verify Configuration
 ```bash
 # Test the configuration
 npm run test:config
@@ -93,16 +157,33 @@ npm run test:connection
 
 ## 🔧 MCP Client Integration
 
-### Claude Desktop Configuration
+### Claude Desktop Configuration (Recommended)
 
-Add the server to your Claude Desktop configuration file:
+If you used Option 1 above, your Claude Desktop is already configured. If you need to modify the configuration or used Option 2, follow these steps:
 
-**Location:**
+**Configuration File Location:**
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 - **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
-**Configuration:**
+**NPM Package Configuration (Recommended):**
+```json
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_your_secret_key_here",
+        "CONDUCTOR_API_KEY": "pk_your_publishable_key_here",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_end_user_id_here"
+      }
+    }
+  }
+}
+```
+
+**Local Development Configuration:**
 ```json
 {
   "mcpServers": {
@@ -111,8 +192,8 @@ Add the server to your Claude Desktop configuration file:
       "args": ["/absolute/path/to/qbconductor-mcp-server/dist/index.js"],
       "env": {
         "CONDUCTOR_SECRET_KEY": "sk_your_secret_key_here",
-        "CONDUCTOR_PUBLISHABLE_KEY": "pk_your_publishable_key_here",
-        "CONDUCTOR_END_USER_ID": "user_your_end_user_id_here"
+        "CONDUCTOR_API_KEY": "pk_your_publishable_key_here",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_end_user_id_here"
       }
     }
   }
@@ -128,17 +209,13 @@ For other MCP-compatible clients, use the following connection details:
 
 ## 🧪 Testing Your Setup
 
-### 1. Basic Connection Test
-```bash
-# Test Conductor API connectivity
-npm run test:conductor
+### 1. Claude Desktop Testing (Recommended)
 
-# Test MCP server startup
-npm run test:mcp
-```
+If you configured the server through Claude Desktop:
 
-### 2. Interactive Testing
-Start Claude Desktop and try these commands:
+1. **Restart Claude Desktop** after adding the configuration
+2. **Start a new conversation** in Claude Desktop
+3. **Test basic connectivity** with these commands:
 
 ```
 "List all accounts in QuickBooks"
@@ -146,7 +223,7 @@ Start Claude Desktop and try these commands:
 "Check connection status"
 ```
 
-### 3. Verify Tool Availability
+### 2. Verify Tool Availability
 In Claude, ask: "What QuickBooks tools are available?"
 
 You should see all 22 tools listed, including:
@@ -155,6 +232,30 @@ You should see all 22 tools listed, including:
 - Account management tools
 - Bill and payment processing tools
 - Reporting and analysis tools
+
+### 3. Local Development Testing
+
+If you're using local development setup:
+
+```bash
+# Test Conductor API connectivity
+npm run test:conductor
+
+# Test MCP server startup
+npm run test:mcp
+```
+
+### 4. Configuration Validation
+
+Test your configuration with these Claude commands:
+
+```
+"Test the QuickBooks connection"
+"Show me my QuickBooks company information"
+"List the first 5 accounts"
+```
+
+If these commands work successfully, your setup is complete!
 
 ## 🔍 Troubleshooting
 

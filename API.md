@@ -5,6 +5,7 @@ This document provides comprehensive API reference documentation for all tools a
 ## Table of Contents
 
 - [Overview](#overview)
+- [Configuration](#configuration)
 - [Common Parameters](#common-parameters)
 - [Response Format](#response-format)
 - [Error Handling](#error-handling)
@@ -29,6 +30,50 @@ The QuickBooks Desktop MCP Server provides 22 specialized tools for interacting 
 5. **Payment Processing** (6 tools): Process bill payments
 6. **Reporting & Analysis** (3 tools): Generate financial reports
 7. **Advanced Operations** (2 tools): Direct API access and bulk operations
+
+## Configuration
+
+### Claude Desktop Integration (Recommended)
+
+The MCP server is designed to work seamlessly with Claude Desktop using NPM package configuration:
+
+```json
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
+        "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_default_user"
+      }
+    }
+  }
+}
+```
+
+### Required Configuration Variables
+
+| Variable | Description | Format |
+|----------|-------------|---------|
+| `CONDUCTOR_SECRET_KEY` | Conductor API secret key | `sk_prod_...` or `sk_test_...` |
+| `CONDUCTOR_API_KEY` | Conductor API publishable key | `pk_prod_...` or `pk_test_...` |
+| `CONDUCTOR_END_USER_ID` | Default end-user ID | `end_usr_...` |
+
+### Optional Configuration Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `CONDUCTOR_API_BASE_URL` | Conductor API base URL | `https://api.conductor.is/v1` |
+| `LOG_LEVEL` | Logging level | `info` |
+| `CACHE_TTL_MINUTES` | Cache time-to-live in minutes | `1440` |
+| `CACHE_MAX_SIZE` | Maximum cache entries | `1000` |
+| `DISABLED_TOOLS` | Comma-separated list of tools to disable | `` |
+
+### Alternative: Environment Variables
+
+For local development or custom deployments, you can use environment variables instead of Claude config JSON. See the [Setup Guide](SETUP.md) for details.
 
 ## Common Parameters
 
@@ -92,8 +137,8 @@ Tools that return lists support cursor-based pagination:
 
 | Code | Description | Resolution |
 |------|-------------|------------|
-| `AUTHENTICATION_FAILED` | Invalid API credentials | Check CONDUCTOR_SECRET_KEY |
-| `END_USER_NOT_FOUND` | End-user ID not found | Verify CONDUCTOR_END_USER_ID |
+| `AUTHENTICATION_FAILED` | Invalid API credentials | Check CONDUCTOR_SECRET_KEY in Claude config JSON or environment |
+| `END_USER_NOT_FOUND` | End-user ID not found | Verify CONDUCTOR_END_USER_ID in Claude config JSON or environment |
 | `VALIDATION_ERROR` | Invalid input parameters | Check parameter format and requirements |
 | `QUICKBOOKS_ERROR` | QuickBooks-specific error | Check QuickBooks connection and data |
 | `RATE_LIMIT_EXCEEDED` | Too many API requests | Wait and retry with exponential backoff |
@@ -224,6 +269,15 @@ Removes an end-user and their associated data.
 ```
 
 ## Authentication
+
+The MCP server handles authentication automatically using the configured Conductor API credentials. All tools require valid authentication to function properly.
+
+### Authentication Flow
+
+1. **Configuration**: Set up credentials in Claude Desktop config JSON or environment variables
+2. **Connection**: Use `create_auth_session` to generate QuickBooks authentication URLs
+3. **Verification**: Use `check_connection_status` to verify end-user connections
+4. **Usage**: All other tools automatically use the configured authentication
 
 ### create_auth_session
 

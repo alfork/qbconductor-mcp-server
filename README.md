@@ -29,6 +29,38 @@ A comprehensive Model Context Protocol (MCP) server that provides Claude with di
 
 ## 🛠️ Installation
 
+### Option 1: Claude Desktop Integration (Recommended)
+
+The easiest way to use this server is through Claude Desktop with NPM package installation:
+
+1. **Add to Claude Desktop configuration**
+   
+   Open your Claude Desktop configuration file and add:
+   ```json
+   {
+     "mcpServers": {
+       "QuickBooks": {
+         "command": "npx",
+         "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+         "env": {
+           "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
+           "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
+           "CONDUCTOR_END_USER_ID": "end_usr_your_default_user",
+           "CONDUCTOR_API_BASE_URL": "https://api.conductor.is/v1"
+         }
+       }
+     }
+   }
+   ```
+
+2. **Restart Claude Desktop**
+   
+   The server will be automatically installed and configured when Claude Desktop starts.
+
+### Option 2: Local Development Setup
+
+For local development or custom deployment:
+
 1. **Clone the repository**
    ```bash
    git clone https://github.com/alfork/qbconductor-mcp-server.git
@@ -48,9 +80,9 @@ A comprehensive Model Context Protocol (MCP) server that provides Claude with di
    Edit `.env` with your Conductor API credentials:
    ```env
    CONDUCTOR_SECRET_KEY=your_secret_key_here
-   CONDUCTOR_PUBLISHABLE_KEY=your_publishable_key_here
+   CONDUCTOR_API_KEY=your_publishable_key_here
    CONDUCTOR_END_USER_ID=your_default_end_user_id
-   CONDUCTOR_BASE_URL=https://api.conductor.is/v1
+   CONDUCTOR_API_BASE_URL=https://api.conductor.is/v1
    LOG_LEVEL=info
    CACHE_TTL_MINUTES=30
    CACHE_MAX_SIZE=1000
@@ -63,21 +95,85 @@ A comprehensive Model Context Protocol (MCP) server that provides Claude with di
 
 ## 🔧 Configuration
 
-### Environment Variables
+### Claude Desktop Configuration (Recommended)
+
+The preferred way to configure this server is through Claude Desktop's configuration file. This approach provides the best user experience and handles all dependencies automatically.
+
+#### Required Configuration
+
+Add the following to your Claude Desktop `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
+        "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_default_user"
+      }
+    }
+  }
+}
+```
+
+#### Optional Configuration
+
+You can customize the server behavior by adding these optional environment variables:
+
+```json
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
+        "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_default_user",
+        "CONDUCTOR_API_BASE_URL": "https://api.conductor.is/v1",
+        "LOG_LEVEL": "info",
+        "CACHE_TTL_MINUTES": "30",
+        "CACHE_MAX_SIZE": "1000",
+        "DISABLED_TOOLS": "passthrough_request,bulk_operations"
+      }
+    }
+  }
+}
+```
+
+#### Configuration Parameters
+
+| Parameter | Description | Required | Default |
+|-----------|-------------|----------|---------|
+| `CONDUCTOR_SECRET_KEY` | Conductor API secret key (starts with `sk_`) | Yes | - |
+| `CONDUCTOR_API_KEY` | Conductor API publishable key (starts with `pk_`) | Yes | - |
+| `CONDUCTOR_END_USER_ID` | Default end-user ID for operations (starts with `end_usr_`) | Yes | - |
+| `CONDUCTOR_API_BASE_URL` | Conductor API base URL | No | `https://api.conductor.is/v1` |
+| `LOG_LEVEL` | Logging level (debug, info, warn, error) | No | `info` |
+| `CACHE_TTL_MINUTES` | Cache time-to-live in minutes | No | `30` |
+| `CACHE_MAX_SIZE` | Maximum number of cached items | No | `1000` |
+| `DISABLED_TOOLS` | Comma-separated list of tools to disable | No | - |
+
+### Alternative: Environment Variables
+
+For local development or custom MCP client integration, you can use environment variables:
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
 | `CONDUCTOR_SECRET_KEY` | Conductor API secret key | Yes | - |
-| `CONDUCTOR_PUBLISHABLE_KEY` | Conductor API publishable key | Yes | - |
+| `CONDUCTOR_API_KEY` | Conductor API publishable key | Yes | - |
 | `CONDUCTOR_END_USER_ID` | Default end-user ID for operations | No | - |
-| `CONDUCTOR_BASE_URL` | Conductor API base URL | No | `https://api.conductor.is/v1` |
+| `CONDUCTOR_API_BASE_URL` | Conductor API base URL | No | `https://api.conductor.is/v1` |
 | `LOG_LEVEL` | Logging level (debug, info, warn, error) | No | `info` |
 | `CACHE_TTL_MINUTES` | Cache time-to-live in minutes | No | `30` |
 | `CACHE_MAX_SIZE` | Maximum number of cached items | No | `1000` |
 
-### MCP Client Configuration
+### Custom MCP Client Configuration
 
-Add this server to your MCP client configuration:
+For custom MCP clients, use this configuration:
 
 ```json
 {
@@ -87,7 +183,7 @@ Add this server to your MCP client configuration:
       "args": ["/path/to/qbconductor-mcp-server/dist/index.js"],
       "env": {
         "CONDUCTOR_SECRET_KEY": "your_secret_key",
-        "CONDUCTOR_PUBLISHABLE_KEY": "your_publishable_key",
+        "CONDUCTOR_API_KEY": "your_publishable_key",
         "CONDUCTOR_END_USER_ID": "your_end_user_id"
       }
     }

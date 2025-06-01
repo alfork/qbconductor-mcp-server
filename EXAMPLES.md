@@ -135,9 +135,60 @@ Total unpaid: $456.75
 
 ## Integration Patterns
 
-### Claude Desktop Integration
+### Claude Desktop Integration (Recommended)
 
-#### Configuration Example
+#### NPM Package Configuration
+The easiest way to integrate with Claude Desktop is using the NPM package:
+
+```json
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
+        "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_default_user"
+      }
+    }
+  }
+}
+```
+
+#### Advanced Configuration Options
+You can customize the server behavior with optional environment variables:
+
+```json
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
+        "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_default_user",
+        "CONDUCTOR_API_BASE_URL": "https://api.conductor.is/v1",
+        "LOG_LEVEL": "info",
+        "CACHE_TTL_MINUTES": "30",
+        "CACHE_MAX_SIZE": "1000",
+        "DISABLED_TOOLS": "passthrough_request,bulk_operations"
+      }
+    }
+  }
+}
+```
+
+#### Configuration File Location
+Add this configuration to your Claude Desktop config file:
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+#### Local Development Configuration
+For local development or custom deployments:
+
 ```json
 {
   "mcpServers": {
@@ -146,8 +197,8 @@ Total unpaid: $456.75
       "args": ["/path/to/qbconductor-mcp-server/dist/index.js"],
       "env": {
         "CONDUCTOR_SECRET_KEY": "sk_your_secret_key",
-        "CONDUCTOR_PUBLISHABLE_KEY": "pk_your_publishable_key",
-        "CONDUCTOR_END_USER_ID": "user_your_end_user_id"
+        "CONDUCTOR_API_KEY": "pk_your_publishable_key",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_end_user_id"
       }
     }
   }
@@ -155,11 +206,15 @@ Total unpaid: $456.75
 ```
 
 #### Natural Language Queries
+Once configured, you can use natural language with Claude:
+
 ```
 "What's my total spending on office supplies this quarter?"
 "Create a bill for $500 from ABC Vendor for consulting services"
 "Pay all bills due this week using our main checking account"
 "Show me which vendors I spend the most money with"
+"List all unpaid bills and their due dates"
+"Generate a financial summary for the last 6 months"
 ```
 
 ### Custom MCP Client Integration
@@ -176,8 +231,8 @@ async def quickbooks_operations():
         args=["/path/to/qbconductor-mcp-server/dist/index.js"],
         env={
             "CONDUCTOR_SECRET_KEY": "sk_your_secret_key",
-            "CONDUCTOR_PUBLISHABLE_KEY": "pk_your_publishable_key",
-            "CONDUCTOR_END_USER_ID": "user_your_end_user_id"
+            "CONDUCTOR_API_KEY": "pk_your_publishable_key",
+            "CONDUCTOR_END_USER_ID": "end_usr_your_end_user_id"
         }
     )
     
@@ -223,7 +278,7 @@ class QuickBooksService {
             env: {
                 ...process.env,
                 CONDUCTOR_SECRET_KEY: process.env.CONDUCTOR_SECRET_KEY,
-                CONDUCTOR_PUBLISHABLE_KEY: process.env.CONDUCTOR_PUBLISHABLE_KEY,
+                CONDUCTOR_API_KEY: process.env.CONDUCTOR_API_KEY,
                 CONDUCTOR_END_USER_ID: process.env.CONDUCTOR_END_USER_ID
             }
         });

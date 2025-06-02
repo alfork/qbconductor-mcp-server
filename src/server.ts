@@ -3,6 +3,9 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  ListResourcesRequestSchema,
+  ListPromptsRequestSchema,
+  GetPromptRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { tools, toolHandlers } from './tools/index.js';
 import { logger } from './logger.js';
@@ -20,6 +23,8 @@ export class QuickBooksDesktopMCPServer {
       {
         capabilities: {
           tools: {},
+          prompts: {},
+          resources: {},
         },
       }
     );
@@ -85,6 +90,25 @@ export class QuickBooksDesktopMCPServer {
           isError: true,
         };
       }
+    });
+
+    this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
+      logger.debug('Listing available resources');
+      return {
+        resources: [],
+      };
+    });
+
+    this.server.setRequestHandler(ListPromptsRequestSchema, async () => {
+      logger.debug('Listing available prompts');
+      return {
+        prompts: [],
+      };
+    });
+
+    this.server.setRequestHandler(GetPromptRequestSchema, async () => {
+      logger.error('Received GetPrompt request, but prompts are not supported');
+      throw new Error('Prompt not found');
     });
 
     process.on('unhandledRejection', (reason, promise) => {

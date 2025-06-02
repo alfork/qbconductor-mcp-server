@@ -225,6 +225,47 @@ If you configured the server through Claude Desktop:
 "Check connection status"
 ```
 
+### 1.1. Windows Claude Desktop Testing
+
+For Windows users, follow these specific steps:
+
+#### Configuration File Location
+On Windows, Claude Desktop configuration is located at:
+`%APPDATA%\Claude\claude_desktop_config.json`
+
+#### Example Windows Configuration
+```json
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_your_secret_key_here",
+        "CONDUCTOR_API_KEY": "pk_your_publishable_key_here",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_end_user_id_here"
+      }
+    }
+  }
+}
+```
+
+#### Windows Testing Commands
+To test the server manually on Windows:
+
+1. **Open Command Prompt or PowerShell**
+2. **Navigate to the project directory**
+3. **Build the project**: `npm run build`
+4. **Test MCP protocol flow**:
+   ```cmd
+   echo {"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}} | node dist\index.js
+   ```
+
+#### Windows File Path Notes
+- Use backslashes (`\`) in Windows file paths for local testing
+- The `%APPDATA%` environment variable expands to your user's AppData\Roaming folder
+- Example full path: `C:\Users\YourUsername\AppData\Roaming\Claude\claude_desktop_config.json`
+
 ### 2. Verify Tool Availability
 In Claude, ask: "What QuickBooks tools are available?"
 

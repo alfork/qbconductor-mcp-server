@@ -86,6 +86,21 @@ export class QuickBooksDesktopMCPServer {
         };
       }
     });
+
+    process.on('unhandledRejection', (reason, promise) => {
+      logger.error('Unhandled promise rejection', {
+        reason: reason instanceof Error ? reason.message : String(reason),
+        stack: reason instanceof Error ? reason.stack : undefined,
+        promise: promise.toString(),
+      });
+    });
+
+    process.on('uncaughtException', (error) => {
+      logger.error('Uncaught exception', {
+        error: error.message,
+        stack: error.stack,
+      });
+    });
   }
 
   async start(): Promise<void> {
@@ -99,6 +114,7 @@ export class QuickBooksDesktopMCPServer {
     await this.server.connect(transport);
     
     logger.info('QuickBooks Desktop MCP Server started successfully');
+    logger.debug('MCP Server ready to handle protocol messages');
   }
 
   async stop(): Promise<void> {

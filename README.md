@@ -33,17 +33,25 @@ A comprehensive Model Context Protocol (MCP) server that provides Claude with di
 
 ### Option 1: Claude Desktop Integration (Recommended)
 
-The easiest way to use this server is through Claude Desktop with NPM package installation:
+The easiest way to use this server is through Claude Desktop with direct git installation:
 
-1. **Add to Claude Desktop configuration**
+1. **Clone and build the repository**
+   ```bash
+   git clone https://github.com/alfork/qbconductor-mcp-server.git
+   cd qbconductor-mcp-server
+   npm install
+   npm run build
+   ```
+
+2. **Add to Claude Desktop configuration**
    
    Open your Claude Desktop configuration file and add:
    ```json
    {
      "mcpServers": {
        "QuickBooks": {
-         "command": "npx",
-         "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+         "command": "node",
+         "args": ["/absolute/path/to/qbconductor-mcp-server/dist/index.js"],
          "env": {
            "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
            "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
@@ -55,9 +63,9 @@ The easiest way to use this server is through Claude Desktop with NPM package in
    }
    ```
 
-2. **Restart Claude Desktop**
+3. **Restart Claude Desktop**
    
-   The server will be automatically installed and configured when Claude Desktop starts.
+   The server will be loaded from your local installation.
 
 ### Option 2: Local Development Setup
 
@@ -109,8 +117,8 @@ Add the following to your Claude Desktop `claude_desktop_config.json`:
 {
   "mcpServers": {
     "QuickBooks": {
-      "command": "npx",
-      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "command": "node",
+      "args": ["/absolute/path/to/qbconductor-mcp-server/dist/index.js"],
       "env": {
         "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
         "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
@@ -129,8 +137,8 @@ You can customize the server behavior by adding these optional environment varia
 {
   "mcpServers": {
     "QuickBooks": {
-      "command": "npx",
-      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "command": "node",
+      "args": ["/absolute/path/to/qbconductor-mcp-server/dist/index.js"],
       "env": {
         "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
         "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
@@ -407,6 +415,79 @@ COPY package*.json ./
 RUN npm ci --only=production
 COPY dist/ ./dist/
 CMD ["node", "dist/index.js"]
+```
+
+## 📦 Publishing to NPM
+
+### Prerequisites for Publishing
+
+1. **NPM Account**: Create an account at [npmjs.com](https://npmjs.com)
+2. **NPM CLI**: Ensure npm is installed and updated
+3. **Authentication**: Login to NPM from command line
+
+### Publishing Steps
+
+1. **Login to NPM**
+   ```bash
+   npm login
+   # Enter your NPM username, password, and email
+   ```
+
+2. **Verify Package Configuration**
+   ```bash
+   # Check package.json is properly configured
+   npm run build
+   npm test
+   ```
+
+3. **Version Management**
+   ```bash
+   # For patch releases (bug fixes)
+   npm version patch
+   
+   # For minor releases (new features)
+   npm version minor
+   
+   # For major releases (breaking changes)
+   npm version major
+   ```
+
+4. **Publish to NPM**
+   ```bash
+   # Publish to public registry
+   npm publish --access public
+   
+   # For scoped packages (recommended)
+   npm publish --access public
+   ```
+
+5. **Verify Publication**
+   ```bash
+   # Check if package is available
+   npm view @alfork/qbconductor-mcp-server
+   
+   # Test installation
+   npx @alfork/qbconductor-mcp-server@latest --help
+   ```
+
+### Post-Publication
+
+After successful publication, update the documentation to use NPM installation:
+
+```json
+{
+  "mcpServers": {
+    "QuickBooks": {
+      "command": "npx",
+      "args": ["-y", "@alfork/qbconductor-mcp-server@latest"],
+      "env": {
+        "CONDUCTOR_SECRET_KEY": "sk_prod_your_secret_key",
+        "CONDUCTOR_API_KEY": "pk_prod_your_publishable_key",
+        "CONDUCTOR_END_USER_ID": "end_usr_your_default_user"
+      }
+    }
+  }
+}
 ```
 
 ## 📖 Documentation

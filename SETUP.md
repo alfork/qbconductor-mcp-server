@@ -168,7 +168,7 @@ If you used Option 1 above, your Claude Desktop is already configured. If you ne
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 - **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
-**NPM Package Configuration (Recommended):**
+**NPM Package Configuration (After Publishing):**
 ```json
 {
   "mcpServers": {
@@ -184,6 +184,8 @@ If you used Option 1 above, your Claude Desktop is already configured. If you ne
   }
 }
 ```
+
+> **Note**: The NPM package needs to be published first. Until then, use the local development configuration below.
 
 **Local Development Configuration:**
 ```json
